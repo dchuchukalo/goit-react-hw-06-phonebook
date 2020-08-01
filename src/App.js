@@ -35,20 +35,6 @@ const App = ({ items, resetFilter }) => {
   );
 };
 
-// componentDidMount() {
-//   const contacts = JSON.parse(localStorage.getItem('contacts'));
-
-//   if (contacts) {
-//     this.setState({ contacts: contacts });
-//   }
-// }
-
-// componentDidUpdate(prevProps, prevState) {
-//   if (this.state.contacts !== prevState.contacts) {
-//     localStorage.setItem('contacts', JSON.stringify(this.state.contacts));
-//   }
-// }
-
 const mapStateToProps = state => ({
   items: state.contacts.items,
 });
