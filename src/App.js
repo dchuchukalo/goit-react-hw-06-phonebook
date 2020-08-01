@@ -1,108 +1,65 @@
-import React, { Component } from 'react';
+import React from 'react';
+import PropTypes from 'prop-types';
 import ContactForm from './components/ContactForm';
 import ContactList from './components/ContactList';
 import Filter from './components/Filter';
-import { v4 as uuidv4 } from 'uuid';
-import { ToastContainer, toast, Zoom } from 'react-toastify';
+import { connect } from 'react-redux';
+import actions from './redux/contacts/contacts-actions';
+import { ToastContainer, Zoom } from 'react-toastify';
 
 import styles from './App.module.css';
 import 'react-toastify/dist/ReactToastify.css';
 
-class App extends Component {
-  state = {
-    contacts: [],
-    filter: '',
-  };
+const App = ({ items, resetFilter }) => {
+  items.length <= 1 && resetFilter();
 
-  componentDidMount() {
-    const contacts = JSON.parse(localStorage.getItem('contacts'));
+  return (
+    <>
+      <h1 className={styles.title}>Phonebook</h1>
+      <ContactForm />
+      <h2 className={styles.title}>Contacts</h2>
+      {items.length > 1 && <Filter />}
+      {items.length > 0 ? (
+        <ContactList />
+      ) : (
+        <p>The contact list is empty. Please add a new contact.</p>
+      )}
+      <ToastContainer
+        position="top-center"
+        autoClose={2000}
+        newestOnTop
+        limit={3}
+        transition={Zoom}
+      />
+    </>
+  );
+};
 
-    if (contacts) {
-      this.setState({ contacts: contacts });
-    }
-  }
+// componentDidMount() {
+//   const contacts = JSON.parse(localStorage.getItem('contacts'));
 
-  componentDidUpdate(prevProps, prevState) {
-    if (this.state.contacts !== prevState.contacts) {
-      localStorage.setItem('contacts', JSON.stringify(this.state.contacts));
-    }
-  }
+//   if (contacts) {
+//     this.setState({ contacts: contacts });
+//   }
+// }
 
-  notifyWarn = text => toast.warn(text);
+// componentDidUpdate(prevProps, prevState) {
+//   if (this.state.contacts !== prevState.contacts) {
+//     localStorage.setItem('contacts', JSON.stringify(this.state.contacts));
+//   }
+// }
 
-  notifySuccess = text => toast.success(text);
+const mapStateToProps = state => ({
+  items: state.contacts.items,
+});
 
-  deleteContact = contactId => {
-    this.setState(prevState => ({
-      contacts: prevState.contacts.filter(contact => contact.id !== contactId),
-    }));
-  };
+const mapDispatchToProps = dispatch => ({
+  resetFilter: () => dispatch(actions.resetFilter()),
+});
 
-  formSubmitHandler = data => {
-    const newContact = { id: uuidv4(), ...data };
-    this.findAlreadyInContacts(newContact);
-  };
+App.propTypes = {
+  items: PropTypes.array.isRequired,
+  resetFilter: PropTypes.func.isRequired,
+};
 
-  findAlreadyInContacts = newContact => {
-    const name = newContact.name.toLowerCase();
-
-    if (name === '') {
-      this.notifyWarn(`Please enter name and number`);
-      return;
-    }
-
-    if (
-      this.state.contacts.find(contact => contact.name.toLowerCase() === name)
-    ) {
-      this.notifyWarn(`${newContact.name} is already in contacts.`);
-      return;
-    }
-
-    this.setState(prevState => ({
-      contacts: [newContact, ...prevState.contacts],
-    }));
-    this.notifySuccess('Added successfully');
-  };
-
-  changeFilter = e => {
-    this.setState({
-      filter: e.currentTarget.value,
-    });
-  };
-
-  render() {
-    const { contacts, filter } = this.state;
-
-    const normalizedFilter = filter.toLowerCase();
-    const filteredContacts = contacts.filter(contact =>
-      contact.name.toLowerCase().includes(normalizedFilter),
-    );
-    return (
-      <>
-        <h1 className={styles.title}>Phonebook</h1>
-        <ContactForm onSubmit={this.formSubmitHandler} />
-        <h2 className={styles.title}>Contacts</h2>
-        {contacts.length > 1 && (
-          <Filter value={filter} onChange={this.changeFilter} />
-        )}
-        {contacts.length > 0 ? (
-          <ContactList
-            contacts={filteredContacts}
-            deleteContact={this.deleteContact}
-          />
-        ) : (
-          <p>The contact list is empty. Please add a new contact.</p>
-        )}
-        <ToastContainer
-          position="top-center"
-          autoClose={2000}
-          newestOnTop
-          limit={3}
-          transition={Zoom}
-        />
-      </>
-    );
-  }
-}
-
-export default App;
+export default connect(mapStateToProps, mapDispatchToProps)(App);

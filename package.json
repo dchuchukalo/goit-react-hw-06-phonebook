@@ -9,8 +9,10 @@
     "modern-normalize": "^0.7.0",
     "react": "^16.13.1",
     "react-dom": "^16.13.1",
+    "react-redux": "^7.2.1",
     "react-scripts": "3.4.1",
     "react-toastify": "^6.0.8",
+    "redux": "^4.0.5",
     "uuid": "^8.2.0"
   },
   "scripts": {
@@ -39,6 +41,7 @@
   "devDependencies": {
     "husky": "^4.2.5",
     "lint-staged": "^10.2.11",
-    "prettier": "^2.0.5"
+    "prettier": "^2.0.5",
+    "redux-devtools-extension": "^2.13.8"
   }
 }

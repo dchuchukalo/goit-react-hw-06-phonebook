@@ -1,9 +1,9 @@
 import React from 'react';
 import ElementContactList from './ElementContactList';
 
-const ContactList = ({ contacts, deleteContact }) => (
+const ContactList = () => (
   <ul>
-    <ElementContactList contacts={contacts} deleteContact={deleteContact} />
+    <ElementContactList />
   </ul>
 );
 

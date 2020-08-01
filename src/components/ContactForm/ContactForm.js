@@ -1,12 +1,20 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import styles from './ContactForm.module.css';
+import { v4 as uuidv4 } from 'uuid';
+import { toast } from 'react-toastify';
+import { connect } from 'react-redux';
+import actions from '../../redux/contacts/contacts-actions';
 
 class ContactForm extends Component {
   state = {
     name: '',
     number: '',
   };
+
+  notifyWarn = text => toast.warn(text);
+  notifySuccess = text => toast.success(text);
+
   handleChange = e => {
     const { name, value } = e.currentTarget;
     name === 'number'
@@ -17,7 +25,14 @@ class ContactForm extends Component {
   handleSubmit = e => {
     e.preventDefault();
 
-    this.props.onSubmit(this.state);
+    const newContact = { id: uuidv4(), ...this.state };
+    if (!this.isAlreadyInContacts(newContact)) {
+      const { addContact } = this.props;
+
+      addContact(newContact);
+      this.notifySuccess('Added successfully');
+    }
+
     this.reset();
   };
 
@@ -26,6 +41,21 @@ class ContactForm extends Component {
       name: '',
       number: '',
     });
+  };
+
+  isAlreadyInContacts = newContact => {
+    const name = newContact.name.toLowerCase();
+    const { items } = this.props;
+
+    if (name === '') {
+      this.notifyWarn(`Please enter name and number`);
+      return true;
+    }
+
+    if (items.find(contact => contact.name.toLowerCase() === name)) {
+      this.notifyWarn(`${newContact.name} is already in contacts.`);
+      return true;
+    }
   };
 
   render() {
@@ -65,7 +95,17 @@ class ContactForm extends Component {
 }
 
 ContactForm.propTypes = {
-  onSubmit: PropTypes.func.isRequired,
+  addContact: PropTypes.func.isRequired,
+  items: PropTypes.array.isRequired,
 };
 
-export default ContactForm;
+const mapStateToProps = state => ({
+  items: state.contacts.items,
+});
+
+const mapDispatchToProps = dispatch => ({
+  resetFilter: () => dispatch(actions.resetFilter()),
+  addContact: newContact => dispatch(actions.addContact(newContact)),
+});
+
+export default connect(mapStateToProps, mapDispatchToProps)(ContactForm);

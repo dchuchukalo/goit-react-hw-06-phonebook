@@ -1,9 +1,16 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 import styles from './ElementContactList.module.css';
+import PropTypes from 'prop-types';
+import { connect } from 'react-redux';
+import actions from '../../../redux/contacts/contacts-actions';
 
-const ElementContactList = ({ contacts, deleteContact }) =>
-  contacts.map(({ id, name, number }) => (
+const ElementContactList = ({ items, filter, deleteContact }) => {
+  const normalizedFilter = filter.toLowerCase();
+  const filteredItems = items.filter(contact =>
+    contact.name.toLowerCase().includes(normalizedFilter),
+  );
+
+  return filteredItems.map(({ id, name, number }) => (
     <li className={styles.item} key={id}>
       <span className={styles.info}>
         {name}: {number}
@@ -19,16 +26,21 @@ const ElementContactList = ({ contacts, deleteContact }) =>
       </button>
     </li>
   ));
+};
+
+const mapStateToProps = state => ({
+  items: state.contacts.items,
+  filter: state.contacts.filter,
+});
+
+const mapDispatchToProps = dispatch => ({
+  deleteContact: contactId => dispatch(actions.deleteContact(contactId)),
+});
 
 ElementContactList.propTypes = {
-  contacts: PropTypes.PropTypes.arrayOf(
-    PropTypes.exact({
-      id: PropTypes.string.isRequired,
-      name: PropTypes.string.isRequired,
-      number: PropTypes.string.isRequired,
-    }),
-  ).isRequired,
+  items: PropTypes.array.isRequired,
+  filter: PropTypes.string.isRequired,
   deleteContact: PropTypes.func.isRequired,
 };
 
-export default ElementContactList;
+export default connect(mapStateToProps, mapDispatchToProps)(ElementContactList);
