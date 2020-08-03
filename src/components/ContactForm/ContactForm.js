@@ -31,9 +31,8 @@ class ContactForm extends Component {
 
       addContact(newContact);
       this.notifySuccess('Added successfully');
+      this.reset();
     }
-
-    this.reset();
   };
 
   reset = () => {
@@ -45,9 +44,10 @@ class ContactForm extends Component {
 
   isAlreadyInContacts = newContact => {
     const name = newContact.name.toLowerCase();
+    const { number } = newContact;
     const { items } = this.props;
 
-    if (name === '') {
+    if (name === '' || number === '') {
       this.notifyWarn(`Please enter name and number`);
       return true;
     }

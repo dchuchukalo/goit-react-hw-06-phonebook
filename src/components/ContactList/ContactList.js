@@ -1,10 +1,43 @@
 import React from 'react';
-import ElementContactList from './ElementContactList';
+import ContactItem from './ContactItem';
+import PropTypes from 'prop-types';
+import { connect } from 'react-redux';
+import actions from '../../redux/contacts/contacts-actions';
 
-const ContactList = () => (
-  <ul>
-    <ElementContactList />
-  </ul>
-);
+const ContactList = ({ items, filter, deleteContact }) => {
+  const normalizedFilter = filter.toLowerCase();
+  const filteredItems = items.filter(contact =>
+    contact.name.toLowerCase().includes(normalizedFilter),
+  );
 
-export default ContactList;
+  return (
+    <ul>
+      {filteredItems &&
+        filteredItems.map(({ id, name, number }) => (
+          <ContactItem
+            key={id}
+            name={name}
+            number={number}
+            onDelete={() => deleteContact(id)}
+          />
+        ))}
+    </ul>
+  );
+};
+
+const mapStateToProps = state => ({
+  items: state.contacts.items,
+  filter: state.contacts.filter,
+});
+
+const mapDispatchToProps = dispatch => ({
+  deleteContact: contactId => dispatch(actions.deleteContact(contactId)),
+});
+
+ContactList.propTypes = {
+  items: PropTypes.array.isRequired,
+  filter: PropTypes.string.isRequired,
+  deleteContact: PropTypes.func.isRequired,
+};
+
+export default connect(mapStateToProps, mapDispatchToProps)(ContactList);
